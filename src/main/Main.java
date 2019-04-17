@@ -1,9 +1,9 @@
 package main;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -18,22 +18,15 @@ public class Main {
 
 	public String randName(int length) {
 		String name = "";
-		double r;
-		String[][] list = getLetterList();
-		String[] morphemes = splitIntoLetters(list);
-		double[] frequencies = splitIntoFrequencies(list);
-		
-		for(int i = 0; i < length; i++) {
-			name += getProbability(morphemes, frequencies);
-		}
-		
+		System.out.println(getHashes());
+
 		return name;
 	}
 
 	String[][] getLetterList() {
 		// Reading the file
 		List<String> records = new ArrayList<String>();
-		String filename = "src/main/probabilities.csv";
+		String filename = "src/main/input.txt";
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(filename));
 			String line;
@@ -46,37 +39,47 @@ public class Main {
 			e.printStackTrace();
 			return null;
 		}
-		
+
 		// Converting the strings into seperated values
-		String[][] probabilities = new String[records.size()][3];
-		for(int i = 0; i < records.size(); i++) {
-			int lastSplit = -1;
-			int index = 0;
-			for(int i2 = 0; i2 < records.get(i).length();i2++) {
-				if(records.get(i).charAt(i2) == ',') {
-					probabilities[i][index] = records.get(i).substring(lastSplit+1,i2);
-					lastSplit = i2;
-					index+=1;
-				}
+		String[][] probabilities = new String[records.size()][2];
+		for (int i = 0; i < records.size(); i++) {
+			for (int i2 = 0; i2 < records.get(i).length() - 2; i2++) {
+				System.out.println(records.get(i).substring(i2, i2 + 3));
 			}
 		}
 		return probabilities;
 	}
-	
-	String[] splitIntoLetters(String[][] list) {
-		String[] array = new String[list.length];
-		for(int i = 0; i < list.length; i++) {
-			array[i] = list[i][0].toLowerCase();
+
+	HashMap<String, Integer> getHashes() {
+		// Reading the file
+		List<String> records = new ArrayList<String>();
+		String filename = "src/main/input.txt";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(filename));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				records.add(line);
+			}
+			reader.close();
+		} catch (Exception e) {
+			System.err.format("Exception occurred trying to read '%s'.", filename);
+			e.printStackTrace();
+			return null;
 		}
-		return array;
-	}
-	
-	double[] splitIntoFrequencies(String[][] list) {
-		double[] array = new double[list.length];
-		for(int i = 0; i < list.length; i++) {
-			array[i] = Double.parseDouble(list[i][1]);
+
+		// Converting the strings into seperated values
+		HashMap<String, Integer> probabilities = new HashMap<String, Integer>();
+		for (int i = 0; i < records.size(); i++) {
+			for (int i2 = 0; i2 < records.get(i).length() - 2; i2++) {
+				String sub = records.get(i).substring(i2, i2 + 3);
+				if(probabilities.containsKey(sub)){
+					probabilities.replace(sub, probabilities.get(sub)+1);
+				} else {
+					probabilities.put(sub, 1);
+				}
+			}
 		}
-		return array;
+		return probabilities;
 	}
 
 	String getProbability(String[] lettersList, double[] lettersProbability) {
