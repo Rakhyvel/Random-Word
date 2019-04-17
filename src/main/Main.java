@@ -13,7 +13,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		Main m = new Main();
-		System.out.println(m.randName(500,10));
+		System.out.println(m.randName(10,10));
 	}
 
 	public String randName(int length, int portionSize) {
@@ -21,9 +21,11 @@ public class Main {
 		List<String> keysAsArray = new ArrayList<String>(morphemes.keySet());
 		String portion = keysAsArray.get(rand.nextInt(keysAsArray.size())).substring(0,portionSize-1);
 		String name = portion;
-		for(int i = 0; i < length; i++) {
+		while(name.length() < length) {
 			String randPortion = spitOutPossibilities(morphemes, portion, portionSize);
-			if(randPortion != null && randPortion != "") {
+			if(randPortion == null)
+				break;
+			if(randPortion != "") {
 				name += randPortion.charAt(portionSize-1);
 				portion = randPortion.substring(1,portionSize);
 			}
