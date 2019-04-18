@@ -13,32 +13,41 @@ public class Main {
 
 	public static void main(String[] args) {
 		Main m = new Main();
-		System.out.println("You're fighting against " + m.randName(8, 3) + "! Good luck!");
+		System.out.println(m.randName(9,3));
 	}
 
 	public String randName(int length, int portionSize) {
-		List<String> records = readFile();
+		List<String> records = readFile(portionSize);
 		HashMap<String, Double> morphemes = getHashes(records, portionSize);
-		String portion = records.get(rand.nextInt(records.size())).substring(0, portionSize - 1);
-		String name = portion;
-		for (int i = 0; i < length; i++) {
-			String randPortion = spitOutPossibilities(morphemes, portion, portionSize);
-			if (randPortion != "" && randPortion != null) {
-				name += randPortion.charAt(portionSize - 1);
-				portion = randPortion.substring(1, portionSize);
+		String name = "";
+		while(name.length() < 5) {
+			String portion = records.get(rand.nextInt(records.size())).substring(0, portionSize - 1);
+			name = portion;
+			for (int i = 0; i < length; i++) {
+				String randPortion = spitOutPossibilities(morphemes, portion, portionSize);
+				if (randPortion != null) {
+					if(randPortion.charAt(portionSize-1) == ' ')
+						break;
+					name += randPortion.substring(portionSize - 1, portionSize);
+					portion = randPortion.substring(1, portionSize);
+				} else {
+					portion = records.get(rand.nextInt(records.size())).substring(0, portionSize - 1);
+					name += "\n" + portion;
+				}
 			}
 		}
-		return name.substring(0, 1).toUpperCase() + name.substring(1, name.length());
+		return name.substring(0, 1).toUpperCase() + name.substring(1, name.length()-1);
 	}
 	
-	List<String> readFile(){
+	List<String> readFile(int portionSize){
 		List<String> records = new ArrayList<String>();
 		String filename = "src/main/input.txt";
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(filename));
 			String line;
 			while ((line = reader.readLine()) != null) {
-				records.add(line);
+				if(line.length() > portionSize)
+					records.add(line);
 			}
 			reader.close();
 		} catch (Exception e) {
@@ -83,6 +92,8 @@ public class Main {
 		// segmentsItem[] items = ...;
 
 		// Compute the total weight of all items together
+		if(lettersProbability.isEmpty())
+			return null;
 		double totalWeight = 0.0d;
 		for (int i = 0; i < lettersProbability.size(); i++) {
 			totalWeight += lettersProbability.get(i);
@@ -97,8 +108,6 @@ public class Main {
 				break;
 			}
 		}
-		if (randomIndex == -1)
-			return "";
 		return lettersList.get(randomIndex);
 	}
 }
