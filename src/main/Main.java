@@ -13,28 +13,25 @@ public class Main {
 
 	public static void main(String[] args) {
 		Main m = new Main();
-		System.out.println(m.randName(10,10));
+		System.out.println("You're fighting against " + m.randName(8, 3) + "! Good luck!");
 	}
 
 	public String randName(int length, int portionSize) {
-		HashMap<String, Double> morphemes = getHashes(portionSize);
-		List<String> keysAsArray = new ArrayList<String>(morphemes.keySet());
-		String portion = keysAsArray.get(rand.nextInt(keysAsArray.size())).substring(0,portionSize-1);
+		List<String> records = readFile();
+		HashMap<String, Double> morphemes = getHashes(records, portionSize);
+		String portion = records.get(rand.nextInt(records.size())).substring(0, portionSize - 1);
 		String name = portion;
-		while(name.length() < length) {
+		for (int i = 0; i < length; i++) {
 			String randPortion = spitOutPossibilities(morphemes, portion, portionSize);
-			if(randPortion == null)
-				break;
-			if(randPortion != "") {
-				name += randPortion.charAt(portionSize-1);
-				portion = randPortion.substring(1,portionSize);
+			if (randPortion != "" && randPortion != null) {
+				name += randPortion.charAt(portionSize - 1);
+				portion = randPortion.substring(1, portionSize);
 			}
 		}
-		return name.substring(0,1).toUpperCase() + name.substring(1,name.length());
+		return name.substring(0, 1).toUpperCase() + name.substring(1, name.length());
 	}
-
-	HashMap<String, Double> getHashes(int portionSize) {
-		// Reading the file
+	
+	List<String> readFile(){
 		List<String> records = new ArrayList<String>();
 		String filename = "src/main/input.txt";
 		try {
@@ -49,14 +46,17 @@ public class Main {
 			e.printStackTrace();
 			return null;
 		}
+		return records;
+	}
 
+	HashMap<String, Double> getHashes(List<String> records, int portionSize) {
 		// Converting the strings into seperated values
 		HashMap<String, Double> probabilities = new HashMap<String, Double>();
 		for (int i = 0; i < records.size(); i++) {
 			for (int i2 = 0; i2 < records.get(i).length() - portionSize + 1; i2++) {
 				String sub = records.get(i).substring(i2, i2 + portionSize);
-				if(probabilities.containsKey(sub)){
-					probabilities.replace(sub, probabilities.get(sub)+1);
+				if (probabilities.containsKey(sub)) {
+					probabilities.replace(sub, probabilities.get(sub) + 1);
 				} else {
 					probabilities.put(sub, 1.0);
 				}
@@ -64,12 +64,12 @@ public class Main {
 		}
 		return probabilities;
 	}
-	
+
 	String spitOutPossibilities(HashMap<String, Double> probabilities, String target, int portionSize) {
 		ArrayList<String> lettersList = new ArrayList<String>();
 		ArrayList<Double> lettersProbability = new ArrayList<Double>();
-		for(String key : probabilities.keySet()) {
-			if(key.substring(0, portionSize - 1).equals(target)) {
+		for (String key : probabilities.keySet()) {
+			if (key.substring(0, portionSize - 1).equals(target)) {
 				lettersList.add(key);
 				lettersProbability.add(probabilities.get(key));
 			}
@@ -77,7 +77,7 @@ public class Main {
 		return getProbability(lettersList, lettersProbability);
 	}
 
-	String getProbability(ArrayList<String> lettersList,ArrayList<Double> lettersProbability) {
+	String getProbability(ArrayList<String> lettersList, ArrayList<Double> lettersProbability) {
 		// 1/rank = proabability
 		// Imagine chosing a random angle on a pie chart with different
 		// segmentsItem[] items = ...;
@@ -97,7 +97,7 @@ public class Main {
 				break;
 			}
 		}
-		if(randomIndex == -1)
+		if (randomIndex == -1)
 			return "";
 		return lettersList.get(randomIndex);
 	}
